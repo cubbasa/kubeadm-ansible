@@ -1,0 +1,83 @@
+
+- hosts: base
+  gather_facts: false
+  vars_files:
+  - vars/global.yaml
+
+  tasks:
+
+  - include_tasks: "tasks/disk2.yaml"
+    when: disk2_dev is defined and disk2_dev != ''
+    tags:
+    - disk2
+
+  - name: install common deb packages
+    apt:
+      pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      update_cache: yes
+      state: present
+      cache_valid_time: 3600
+ 
+  - name: add docker gpg key
+    apt_key: 
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: add apt docker repo
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+      filename: docker
+
+  - name: install common deb packages
+    apt:
+      name: docker-ce=18.06.2~ce~3-0~ubuntu
+      update_cache: yes
+      state: present
+
+  - name: copy daemon.json
+    copy:
+      src: files/daemon.json
+      dest: /etc/docker/daemon.json
+    notify: restart docker
+
+  - name: mkdir /etc/systemd/system/docker.service.d
+    file: 
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+ 
+  - name: force flush handlers
+    meta: flush_handlers
+
+  - name: add kubernetes gpg key
+    apt_key: 
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: add apt kubernetes repo
+    apt_repository:
+      repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+      filename: kubernetes
+
+  - name: install k8s deb packages
+    apt:
+      pkg:
+      - kubelet={{ k8s_version }}-00
+      - kubeadm={{ k8s_version }}-00
+      - kubectl={{ k8s_version }}-00
+      update_cache: yes
+      state: present
+
+  - name: hold k8s deb packages
+    shell: apt-mark hold kubelet kubeadm kubectl
+    
+
+  handlers:
+  - name: restart docker
+    systemd:
+      state: restarted
+      daemon_reload: yes
+      name: docker

@@ -1,0 +1,26 @@
+
+- hosts: master
+  gather_facts: false
+  vars_files:
+  - vars/global.yaml
+
+  tasks:
+
+  - include_tasks: "tasks/kubeadm-token-and-cert-hash.yaml"
+
+  - name: generate kubeadm certificate key
+    shell: kubeadm alpha certs certificate-key
+    register: kubeadm_cert_key
+    delegate_to: "{{ groups['master-leader'][0] }}"
+
+  - name: upload kubeadm certificate
+    shell: kubeadm init phase upload-certs --upload-certs --certificate-key {{ kubeadm_cert_key.stdout }} --skip-certificate-key-print
+    delegate_to: "{{ groups['master-leader'][0] }}"
+
+  - include_tasks: "tasks/temporary-k8s-api-localhost-alias.yaml"
+
+  - name: join master to cluster
+    shell: kubeadm join k8s-api-localhost:6443 --token {{ kubeadm_token.stdout }} --discovery-token-ca-cert-hash sha256:{{ kubeadm_cert_hash.stdout }} --control-plane --certificate-key {{ kubeadm_cert_key.stdout }}
+
+  - include_tasks: "tasks/post-join.yaml"
+

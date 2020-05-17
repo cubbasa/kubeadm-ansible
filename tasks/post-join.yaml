@@ -1,0 +1,12 @@
+---
+
+- include_tasks: "tasks/wait-node-ready-state.yaml"
+
+- name: remove temporary alias k8s-api-localhost from /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: absent
+    line: "{{ hostvars[groups['master-leader'][0]]['ansible_host'] }} {{ control_plane_endpoint }}"
+
+- include_tasks: "tasks/k8s-api-localhost-alias.yaml"
+

@@ -1,0 +1,11 @@
+---
+
+- name: generate kubeadm token
+  shell: kubeadm token create
+  register: kubeadm_token
+  delegate_to: "{{ groups['master-leader'][0] }}"
+
+- name: generate kubeadm certificate hash
+  shell: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  register: kubeadm_cert_hash
+  delegate_to: "{{ groups['master-leader'][0] }}"

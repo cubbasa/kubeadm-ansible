@@ -1,0 +1,26 @@
+---
+
+- name: mkdir for disk2 mount point
+  file:
+    path: "{{ disk2_mount_dir }}"
+    state: directory
+  tags:
+  - disk2
+
+- name: mkfs on disk2 volume
+  filesystem:
+    fstype: xfs
+    dev: "{{ disk2_dev }}"
+    force: "{{ disk2_mkfs_force | default ('false') }}"
+  tags:
+  - disk2
+
+- name: mount and fstab disk2 volume
+  mount:
+    path: "{{ disk2_mount_dir }}"
+    src: "{{ disk2_dev }}"
+    fstype: xfs
+    state: mounted
+  tags:
+  - disk2
+

@@ -1,0 +1,12 @@
+---
+
+- name: wait until node is in ready state
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: kubectl get nodes "{{ inventory_hostname }}"
+  register: node_status
+  until: node_status.stdout.find('NotReady') == -1
+  delay: 10
+  retries: 20
+  delegate_to: "{{ groups['master-leader'][0] }}"
+

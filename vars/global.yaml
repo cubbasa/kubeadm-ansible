@@ -1,0 +1,6 @@
+
+k8s_version: 1.15.7
+pod_subnet: 10.244.0.0/16
+control_plane_endpoint: k8s-api-localhost
+nginx_image_tag: 1.17.6-alpine
+

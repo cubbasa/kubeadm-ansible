@@ -1,0 +1,31 @@
+
+- hosts: master-leader
+  gather_facts: false
+  vars_files:
+  - vars/global.yaml
+
+  tasks:
+
+  - include_tasks: "tasks/k8s-api-localhost-alias.yaml"
+
+  - name: add tmp dir for kubeadm config
+    tempfile: state=directory
+    register: tempdir
+
+  - name: template kubeadm-config.yaml
+    template: src=templates/kubeadm-config.yaml.j2 dest={{ tempdir.path }}/kubeadm-config.yaml
+
+  - name: init k8s cluster
+    shell: kubeadm init --config={{ tempdir.path }}/kubeadm-config.yaml --upload-certs
+
+  - name: apply canal cni
+    shell: kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/canal.yaml
+    environment: 
+      KUBECONFIG: /etc/kubernetes/admin.conf
+
+  - name: rm cloud.cfg tmp dir
+    file: path={{ tempdir.path}} state=absent
+
+  - include_tasks: "tasks/wait-node-ready-state.yaml"
+
+

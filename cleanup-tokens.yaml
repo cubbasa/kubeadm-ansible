@@ -1,0 +1,17 @@
+
+- hosts: master
+  gather_facts: false
+
+  tasks:
+
+  - name: get all kubeadm tokens
+    shell: kubeadm token list | tail -n +2 | awk '{print $1}'
+    register: kubeadm_tokens
+    delegate_to: "{{ groups['master-leader'][0] }}"
+
+  - name: delete all kubeadm tokens
+    shell: kubeadm token delete {{ item }}
+    loop: "{{ kubeadm_tokens.stdout_lines }}"
+    delegate_to: "{{ groups['master-leader'][0] }}"
+    run_once: true
+

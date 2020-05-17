@@ -1,0 +1,8 @@
+---
+
+- name: add temporary alias k8s-api-localhost to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: present
+    line: "{{ hostvars[groups['master-leader'][0]]['ansible_host'] }} {{ control_plane_endpoint }}"
+

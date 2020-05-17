@@ -1,0 +1,26 @@
+
+[master-leader]
+kube-m1 ansible_host=192.168.100.11
+
+[master]
+kube-m1 ansible_host=192.168.100.11
+kube-m2 ansible_host=192.168.100.12
+kube-m3 ansible_host=192.168.100.13
+
+[master:vars]
+ansible_ssh_common_args='-o UserKnownHostsFile=/dev/null'
+disk2_mount_dir=/var/lib/etcd
+disk2_dev=/dev/xvdb1
+
+[node]
+kube-n1 ansible_host=192.168.100.21 disk2_dev=/dev/sda3 disk2_mount_dir=/var/lib/docker
+kube-n2 ansible_host=192.168.100.22 disk2_dev=/dev/sda3 disk2_mount_dir=/var/lib/docker
+kube-n3 ansible_host=192.168.100.23 disk2_dev=/dev/sda3 disk2_mount_dir=/var/lib/docker
+
+[node:vars]
+ansible_ssh_common_args='-o UserKnownHostsFile=/dev/null'
+
+[base:children]
+master
+node
+

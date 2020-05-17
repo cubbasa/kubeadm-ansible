@@ -1,0 +1,8 @@
+---
+
+- name: add alias k8s-api-localhost to /etc/hosts
+  replace:
+    path: /etc/hosts
+    regexp: '^127.0.0.1 localhost$'
+    replace: '127.0.0.1 localhost {{ control_plane_endpoint }}'
+

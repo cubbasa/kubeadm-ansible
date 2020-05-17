@@ -1,0 +1,41 @@
+
+- hosts: node
+  gather_facts: false
+  vars_files:
+  - vars/global.yaml
+
+  tasks:
+
+  - include_tasks: "tasks/kubeadm-token-and-cert-hash.yaml"
+
+  - include_tasks: "tasks/temporary-k8s-api-localhost-alias.yaml"
+
+  - name: join node to cluster
+    shell: kubeadm join k8s-api-localhost:6443 --token {{ kubeadm_token.stdout }} --discovery-token-ca-cert-hash sha256:{{ kubeadm_cert_hash.stdout }}
+
+  - name: make nginx directory
+    file:
+      path: /etc/nginx
+      state: directory
+      mode: 0700
+      owner: root
+  
+  - name: template nginx-proxy configuration
+    template:
+      src: "templates/nginx.conf.j2"
+      dest: "/etc/nginx/nginx.conf"
+      owner: root
+      mode: 0755
+      backup: yes
+  
+  - name: get checksum from nginx-config
+    stat:
+      path: "/etc/nginx/nginx.conf"
+    register: nginx_stat
+  
+  - name: template nginx static pod manifest
+    template:
+      src: templates/nginx-proxy.yaml.j2
+      dest: "/etc/kubernetes/manifests/nginx-proxy.yaml"
+
+  - include_tasks: "tasks/post-join.yaml"
