@@ -11,15 +11,22 @@
   - name: add tmp dir for kubeadm config
     tempfile: state=directory
     register: tempdir
+    tags:
+    - kubeadm-config
 
   - name: template kubeadm-config.yaml
     template: src=templates/kubeadm-config.yaml.j2 dest={{ tempdir.path }}/kubeadm-config.yaml
+    tags:
+    - kubeadm-config
 
   - name: init k8s cluster
     shell: kubeadm init --config={{ tempdir.path }}/kubeadm-config.yaml --upload-certs
 
+  - name: template canal.yaml
+    template: src=templates/canal-{{ canal_version | default("3.9") }}.yaml.j2 dest={{ tempdir.path }}/canal.yaml
+
   - name: apply canal cni
-    shell: kubectl apply -f https://docs.projectcalico.org/v3.9/manifests/canal.yaml
+    shell: kubectl apply -f {{tempdir.path }}/canal.yaml
     environment: 
       KUBECONFIG: /etc/kubernetes/admin.conf
 
