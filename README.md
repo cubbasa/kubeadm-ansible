@@ -42,3 +42,23 @@ Add nodes to k8s cluster:
 ansible-playbook -f 3 -v add-node.yaml -u root -i hosts
 ```
 
+# K8s custom variables
+
+In host file is possible to set or override variables for custom installation:
+
+- k8s_version - k8s version (default: 1.15.7)
+
+- canal_version - canal version (default: 3.9; different version require manually template and add canal manifest to template directory)
+
+- nginx_image_tag - nginx image for loadbalancer proxy (default: 1.17.6-alpine)
+
+- pod_network - k8s pod network 
+
+- service_network - k8s service network
+
+- docker_network - docker network
+
+- docker_subnet_mask - docker subnet network mask
+
+
+
