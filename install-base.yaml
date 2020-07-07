@@ -1,6 +1,7 @@
 
 - hosts: base
   gather_facts: false
+  remote_user: root
 
   tasks:
 
@@ -63,9 +64,9 @@
   - name: install k8s deb packages
     apt:
       pkg:
-      - kubelet={{ k8s_version }}-00
-      - kubeadm={{ k8s_version }}-00
-      - kubectl={{ k8s_version }}-00
+      - kubelet={{ k8s_version | default("1.15.7") }}-00
+      - kubeadm={{ k8s_version | default("1.15.7") }}-00
+      - kubectl={{ k8s_version | default("1.15.7") }}-00
       update_cache: yes
       state: present
 
