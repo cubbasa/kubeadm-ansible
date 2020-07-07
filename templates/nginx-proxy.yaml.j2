@@ -16,7 +16,7 @@ spec:
   priorityClassName: system-node-critical
   containers:
   - name: nginx-proxy
-    image: nginx:{{ nginx_image_tag }}
+    image: nginx:{{ nginx_image_tag | default("1.17.6-alpine") }}
     resources:
       requests:
         cpu: 0.5

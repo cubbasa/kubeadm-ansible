@@ -1,6 +1,13 @@
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
-kubernetesVersion: {{ k8s_version }}
+kubernetesVersion: {{ k8s_version | default("1.15.7") }}
 controlPlaneEndpoint: {{ control_plane_endpoint }}:6443
+{% if pod_network or service_network %}
 networking:
-  podSubnet: {{ pod_subnet }}
+{% if pod_network %}
+  podSubnet: {{ pod_network }}
+{% endif %}
+{% if service_network %}
+  serviceSubnet: {{ service_network }}
+{% endif %}
+{% endif %}
