@@ -18,28 +18,28 @@ Current version support Ubuntu 18.04 as base OS for masters and nodes.
 
 Check connectivity to all hosts:
 ```
-ansible all -u root -i hosts -m ping
+ansible all -b -i hosts -m ping
 ```
 
 Install base packages on all hosts:
 ```
-ansible-playbook -f 6 -v install-base.yaml -u root -i hosts
+ansible-playbook -f 6 -v install-base.yaml -b -i hosts
 ```
 
 Init k8s cluster (control plane first master):
 ```
-ansible-playbook -v init-cluster.yaml -u root -i hosts
+ansible-playbook -v init-cluster.yaml -b -i hosts
 ```
 
 Add masters to control plane:
 ```
-ansible-playbook -v add-master.yaml -u root -i hosts -l kube-m2
-ansible-playbook -v add-master.yaml -u root -i hosts -l kube-m3
+ansible-playbook -v add-master.yaml -b -i hosts -l kube-m2
+ansible-playbook -v add-master.yaml -b -i hosts -l kube-m3
 ```
 
 Add nodes to k8s cluster:
 ```
-ansible-playbook -f 3 -v add-node.yaml -u root -i hosts
+ansible-playbook -f 3 -v add-node.yaml -b -i hosts
 ```
 
 # K8s custom variables
