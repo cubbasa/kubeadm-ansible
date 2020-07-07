@@ -1,8 +1,6 @@
 
 - hosts: base
   gather_facts: false
-  vars_files:
-  - vars/global.yaml
 
   tasks:
 
@@ -38,9 +36,9 @@
       update_cache: yes
       state: present
 
-  - name: copy daemon.json
-    copy:
-      src: files/daemon.json
+  - name: template daemon.json
+    template: 
+      src: templates/daemon.json.j2
       dest: /etc/docker/daemon.json
     notify: restart docker
 
